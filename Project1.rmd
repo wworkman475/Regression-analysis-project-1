@@ -1,0 +1,303 @@
+---
+title: "Project 1"
+output:
+  html_document:
+    df_print: paged
+---
+
+Introduction:
+
+The objective of this project is to analyze a dataset that contains county demographic information (or CDI) data for the 440 most populous counties in the United States.  The dataset contains 14 different parameters pertaining to each county, and for four different regions of the United States.  The data used in this project are from 1990-1992.  
+Two different sets of models are constructed in section 1.  The first set of models aim to predict the number of active physicians in a county as a function of the county’s total population, number of hospital beds available, and total personal income.  The second set of models aim to predict the per-capita income in a county as a function of individuals having at least a bachelor’s degree. This is done for four different regions of the United States:  the northeast, north central, southern and western United States.  Finally, initial calculations are carried out to determine which models best predict the number of active physicians in a county, and which model indicates the geographical region with the highest per-capita income.
+In section 2 of the project, the three models for predicting the number of active physicians in a county are evaluated for linear association.  Calculations are carried out to determine which predictor variable is most successful at eliminating variation in the response.  The model with the highest degree of linear association will be the most accurate model.  
+In section 3, the second set of models are evaluated to determine if they have similar slopes.  The slopes for each model are estimated by constructing a confidence interval for the slope of each model. Finally, the usefulness of each model is determined by means of an analysis of variance (ANOVA), and an F-test.
+This project concludes with a series of diagnostic plots to determine if the first set of models are appropriate for the data.  If so, the conclusions reached are meaningful and useful.  Finally, the project concludes with a summary of all findings for both sets of models, and suggestions on how to improve the models so that they are more accurate.
+
+
+
+Load dataset for CDI:
+```{r, echo=FALSE}
+data = data.frame(read.table("CDI.txt"))
+
+data1 = data.frame(data$V8, data$V5)
+data1
+
+
+
+```
+
+1.43A) 
+Regress the number of active physicians in turn on each of the three predictor variables.
+State the estimated regression functions.
+
+```{r, echo=FALSE}
+y = data$V8 #number of active physicians
+x1 = data$V5 #Total population
+x2 = data$V9 #number of hospital beds
+x3 = data$V16 #total personal income
+
+```
+
+Model 1: number of active physicians vs. total population
+```{r, echo=FALSE}
+fit1 = lm(y~x1)
+##summary(fit1)  NOTE: used this code to find beta 0 and beta 1.
+```
+Y = -110.6 + 0.002795x
+
+Model 2: number of active physicians vs. number of hospital beds
+```{r, echo=FALSE}
+fit2 = lm(y~x2)
+##summary(fit2) NOTE: used this code to find beta 0 and beta 1.
+```
+Y = -95.93218 + 0.74312x
+
+Model 3: number of active physicians vs. total personal income
+```{r, echo=FALSE}
+fit3 = lm(y~x3)
+##summary(fit3) NOTE: used this code to find beta 0 and beta 1. 
+
+
+```
+Y = -48.39485 + 0.13170x
+
+
+1.43B) 
+Plot the three estimated regression functions and data on separate graphs. Does a linear
+regression relation appear to provide a good fit for each of the three predictor variables?
+
+Model 1 graph:
+
+```{r, echo=FALSE}
+plot(x1, y, xlab = "Total Population", ylab = "Number of Active Physicians", main = "Number of Active Physicians vs. Total Population")
+abline(fit1$coefficients)
+
+
+```
+
+Based on the above graph, model 1.1 appears to be appropriate, since the data seems to be relatively linear.
+
+Model 2 graph:
+
+```{r, echo=FALSE}
+plot(x2, y, xlab = "Number of Hospital Beds", ylab = "Number of Active Physicians", main = "Number of Active Physicians vs. Number of Hospital Beds")
+abline(fit2$coefficients)
+
+```
+
+Based on the above graph, model 1.1 appears to be appropriate, since the data seems to be relatively linear.
+
+Model 3 graph:
+
+```{r, echo=FALSE}
+plot(x3, y, xlab = "Total Personal Income", ylab = "Number of Active Physicians", main = "Number of Active Physicians vs. Total Personal Income")
+abline(fit3$coefficients)
+
+
+```
+
+Based on the above graph, model 1.1 appears to be appropriate, since the data seems to be relatively linear.
+
+
+1.43C)
+Calculate MSE for each of the three predictor variables. Which predictor variable leads to
+the smallest variability around the fitted regression line?
+
+model 1:
+```{r, echo=FALSE}
+Mse = summary(fit1)$sigma^2
+Mse
+
+```
+Model 2:
+```{r, echo=FALSE}
+mSe = summary(fit2)$sigma^2
+mSe
+
+
+```
+Model 3:
+```{r, echo=FALSE}
+msE = summary(fit3)$sigma^2
+msE
+
+```
+Since MSE is an unbiased estimator for population variance, a lower MSE means a lower estimated variance, hence a better model.  Model 2 has the smallest MSE, meaning that the number of hospital beds in a given county is the best predictor variable for determining the number of active physicians.
+
+
+2.62)
+Refer to the CDI data set in Appendix C.2 and Project l.43. Using R^2 as the criterion, which
+predictor variable accounts for the largest reduction in the variability in the number of active
+physicians?
+
+Model 1 R^2:
+```{r, echo=FALSE}
+f1 = anova(fit1)
+#f1
+
+ssr = 1243181164
+ssto = 1243181164+163025135 
+
+#NOTE: SSR and SSTO came from f1, which is currently hidden for ease of readability.
+
+r2 = ssr/ssto
+r2
+
+```
+
+Model 2 R^2:
+```{r, echo=FALSE}
+f2 = anova(fit2)
+#f2
+
+ssR = 1270342254
+sstO = 1270342254+135864045
+
+#NOTE: SSR and SSTO came from f2, which is currently hidden for ease of readability.
+
+R2 = ssR/sstO
+R2
+
+```
+
+Model 3 R^2:
+```{r, echo=FALSE}
+f3 = anova(fit3)
+#f3
+
+Ssr = 1264058045
+Ssto = 142148254+1264058045 
+
+#NOTE: SSR and SSTO came from f3, which is currently hidden for ease of readability.
+
+rr2 = Ssr/Ssto
+rr2
+
+```
+Model 1: 0.8840674
+Model 2: 0.9033826
+Model 3: 0.8989137
+
+Based on these R^2 values, the number of hospital beds (predictor variable in model 2, which has the highest R^2 value) seems to be the best variable in reducing variability in the number of active physicians in a given county.  This confirms the conclusion reached in 1.43C.
+
+3.25)
+
+Refer to the CDI data set in Appendix C.2 and Project 1.43. For each of the three fitted regression
+models, obtain the residuals and prepare a residual plot against X and a normal probability plot.
+Summarize your conclusions. Is linear regression model (2.1) more appropriate in one case than
+in the others?
+
+Model 1 residual plot:
+
+```{r, echo=FALSE}
+plot(data$V5,fit1$residuals, main = "Model 1 Residuals vs. Total Population of a CDI", xlab = "Total Population", ylab = "Residuals")
+abline(0,0)
+
+
+```
+
+From the above graph, there appears to be no discernible pattern, and the data seem to be roughly even around the zero line.  Therefore, the constant error variance assumption holds for model 1.
+
+Model 1 normal probability plot:
+
+```{r, echo=FALSE}
+qqnorm(fit1$residuals, main = "Normal Probability Plot for Model 1", xlab = "Expected Value of Residual", ylab = "Residual")
+qqline(fit1$residuals)
+#shapiro.test(fit1$residuals)
+```
+
+The above normal probability plot is symmetrical with heavy tails, indicating that the residuals are not normally distributed.   
+
+
+Model 2 Residual Plot:
+
+```{r, echo=FALSE}
+plot(data$V9,fit2$residuals, main = "Model 2 Residuals vs. Number of Hospital Beds available in a  CDI", xlab = "Number of Hospital Beds", ylab = "Residuals")
+abline(0,0)
+
+```
+
+From the above graph, there appears to be no discernible pattern, and the data seem to be roughly even around the zero line.  Therefore, the constant error variance assumption holds for model 2.
+
+Model 2 normal probability plot:
+
+```{r, echo=FALSE}
+qqnorm(fit2$residuals, main = "Normal Probability Plot for Model 2", xlab = "Expected Value of Residual", ylab = "Residual")
+qqline(fit2$residuals)
+#shapiro.test(fit2$residuals)
+
+```
+
+The above normal probability plot is symmetrical with heavy tails, indicating that the residuals are not normally distributed.   
+
+
+Model 3 residual plot:
+
+```{r, echo=FALSE}
+plot(data$V16,fit3$residuals, main = "Model 3 Residuals vs. Total Personal Income", xlab = "Total Personal Income", ylab = "Residuals")
+abline(0,0)
+
+
+```
+
+From the above graph, there appears to be no discernible pattern, and the data seem to be roughly even around the zero line.  Therefore, the constant error variance assumption holds for model 3.
+
+Model 3 normal probability plot:
+
+```{r, echo=FALSE}
+qqnorm(fit3$residuals, main = "Normal Probability Plot for Model 3", xlab = "Expected Value of Residual", ylab = "Residual")
+qqline(fit3$residuals)
+#shapiro.test(fit3$residuals)
+
+
+```
+
+The above normal probability plot is symmetrical with heavy tails, indicating that the residuals are not normally distributed.   
+
+
+
+
+```{r, ref.label=knitr::all_labels(),echo=TRUE,eval=FALSE}
+```
+
+
+Conclusion:
+
+The best predictor of the number of active physicians in a county was determined to be the number of hospital beds available in a county.  After models were constructed for all three predictor variables involved in the project, the data for each were plotted along with their respective linear models.  These plots can be seen in section 1 part 1.43.  It is difficult to discern which model is the most accurate from the graphs alone.  
+In the section 2 of the report, calculations were carried out to determine numerically which model produced the highest degree of linear association between the predictor variable and the response.  This value is known as the coefficient of determination, or R^2 value.  A higher R^2 value means that a given predictor variable produces a more accurate prediction of the response in question.  The model that used the number of available hospital beds had the highest R^2 value, indicating that it is the best predictor of the number of active physicians in a county.
+To ensure that this finding was accurate, a series of plots were produced in section 4 to determine that all assumptions for a linear model were met.  By examining the plots, it is clear that the errors for each model exhibit constant variance, but the errors are not normally distributed.  As a result of not meeting the normality assumption, any inferences made on the slope or intercept will be inaccurate, since we cannot rely on the T-distribution.  This could be remedied by transforming the response data (number of active physicians).  An appropriate transformation could be determined by using the Box-Cox procedure, which finds an optimal transformation for the response variable that would most likely result in normally distributed errors.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
