@@ -1,0 +1,489 @@
+---
+title: "Project 1"
+author: "Wyatt Workman and Sophia Li"
+date: "2/10/2021"
+output: html_document
+---
+
+# Introduction:
+
+The objective of this project is to analyze a dataset that contains county demographic information (or CDI) data for the 440 most populous counties in the United States.  The dataset contains 14 different parameters pertaining to each county, and for four different regions of the United States.  The data used in this project are from 1990-1992.
+
+Two different sets of models are constructed in Part I.  The first set of models aim to predict the number of active physicians in a county as a function of the county’s total population, number of hospital beds available, and total personal income.  The second set of models aim to predict the per-capita income in a county as a function of individuals having at least a bachelor’s degree. This is done for four different regions of the United States:  the northeastern, north central, southern and western United States.  Finally, initial calculations are carried out to determine which models best predict the number of active physicians in a county, and which model indicates the geographical region with the highest per-capita income increase.
+
+In Part II of the project, the three models for predicting the number of active physicians in a county are evaluated for linear association.  Calculations are carried out to determine which predictor variable is most successful at eliminating variation in the response.  The model with the highest degree of linear association will be the most accurate model.
+
+In Part III, the second set of models are evaluated to determine if they have similar slopes.  The slopes for each model are estimated by constructing a confidence interval for the slope of each model. Finally, the usefulness of each model is determined by means of an analysis of variance (ANOVA), and an F-test.
+
+This project ends with a series of diagnostic plots to determine if the first set of models are appropriate for the data.  If so, the conclusions reached are meaningful and useful.  Finally, the project concludes with a summary of all findings for both sets of models, and suggestions on how to improve the models so that they are more accurate.
+
+```{r, echo=FALSE}
+#CDI
+data = (read.table("C:/Users/Workman/Desktop/sta 108 Regression/CDI.txt"))
+
+# Uses Model 1.1 (unspecified error distribution)
+```
+
+## Part I
+
+### 1.43
+
+#### a.
+
+Regress the number of active physicians in turn on each of the three predictor variables. State the estimated regression functions.
+
+```{r, echo=FALSE}
+y = data$V8 #number of active physicians
+x1 = data$V5 #Total population
+x2 = data$V9 #number of hospital beds
+x3 = data$V16 #total personal income
+```
+
+Model 1: number of active physicians vs. total population
+```{r, echo=FALSE}
+fit1 = lm(y~x1)
+##summary(fit1)  NOTE: used this code to find beta 0 and beta 1.
+```
+$\hat{Y}_i=-110.6+0.002795x_i$
+
+Model 2: number of active physicians vs. number of hospital beds
+```{r, echo=FALSE}
+fit2 = lm(y~x2)
+##summary(fit2) NOTE: used this code to find beta 0 and beta 1.
+```
+$\hat{Y}_i=-95.93218+0.74312x_i$
+
+Model 3: number of active physicians vs. total personal income
+```{r, echo=FALSE}
+fit3 = lm(y~x3)
+##summary(fit3) NOTE: used this code to find beta 0 and beta 1. 
+```
+$\hat{Y}_i=-48.39485 + 0.13170x_i$
+
+#### b.
+
+Plot the three estimated regression functions and data on separate graphs. Does a linear
+regression relation appear to provide a good fit for each of the three predictor variables?
+
+Model 1 graph:
+
+```{r, echo=FALSE}
+plot(x1, y, xlab = "Total Population", ylab = "Number of Active Physicians", main = "Number of Active Physicians vs. Total Population")
+abline(fit1$coefficients)
+```
+
+Based on the above graph, model 1.1 appears to be appropriate, since the data seems to be relatively linear.
+
+Model 2 graph:
+
+```{r, echo=FALSE}
+plot(x2, y, xlab = "Number of Hospital Beds", ylab = "Number of Active Physicians", main = "Number of Active Physicians vs. Number of Hospital Beds")
+abline(fit2$coefficients)
+```
+
+Based on the above graph, model 1.1 appears to be appropriate, since the data seems to be relatively linear.
+
+Model 3 graph:
+
+```{r, echo=FALSE}
+plot(x3, y, xlab = "Total Personal Income", ylab = "Number of Active Physicians", main = "Number of Active Physicians vs. Total Personal Income")
+abline(fit3$coefficients)
+```
+
+Based on the above graph, model 1.1 appears to be appropriate, since the data seems to be relatively linear.
+
+#### c.
+
+Calculate MSE for each of the three predictor variables. Which predictor variable leads to
+the smallest variability around the fitted regression line?
+
+Model 1:
+```{r, echo=FALSE}
+Mse = summary(fit1)$sigma^2
+Mse
+```
+Model 2:
+```{r, echo=FALSE}
+mSe = summary(fit2)$sigma^2
+mSe
+```
+Model 3:
+```{r, echo=FALSE}
+msE = summary(fit3)$sigma^2
+msE
+```
+Since MSE is an unbiased estimator for population variance, a lower MSE means a lower estimated variance, hence a better model.  Model 2 has the smallest MSE, meaning that the number of hospital beds in a given county is the best predictor variable for determining the number of active physicians.
+
+### 1.44
+
+#### a.
+
+For each geographic region, regress per capita income in a CDI (Y) against the percentage of individuals in a county having at least a bachelor's degree (X). Assume that first-order regression model (1.1) is appropriate for each region. State the estimated regression functions.
+
+```{r, echo=FALSE}
+regresscoef = function(X,Y){
+  Xbar = mean(X)
+  Ybar = mean(Y)
+  
+  b1hat = (sum((X-Xbar)*(Y-Ybar)))/(sum((X-Xbar)^2))
+  b0hat = Ybar - b1hat*Xbar
+  
+  #Plot
+  #plot(X, Y, xlab="X", ylab="Y",pch=19)
+  #abline(b0hat,b1hat,col="red")
+  
+  #Check results
+  #lm(Y~X) or summary(lm(Y~X))
+  
+  return(list("intercept,slope"=c(b0hat,b1hat)))
+}
+
+#Per capita income Y
+#Percent bachelor's degrees X
+
+#Region 1
+reg1=data[which(data$V17==1),]
+Y1=reg1$V15
+X1=reg1$V12
+regresscoef(X1,Y1)
+
+#Region 2
+reg2=data[which(data$V17==2),]
+Y2=reg2$V15
+X2=reg2$V12
+regresscoef(X2,Y2)
+
+#Region 3
+reg3=data[which(data$V17==3),]
+Y3=reg3$V15
+X3=reg3$V12
+regresscoef(X3,Y3)
+
+#Region 4
+reg4=data[which(data$V17==4),]
+Y4=reg4$V15
+X4=reg4$V12
+regresscoef(X4,Y4)
+```
+
+Regression models for each region:
+
+Region 1: $\hat{Y}_i=9223.8156+522.1588x_i$
+
+Region 2: $\hat{Y}_i=13581.4052+238.6694x_i$
+
+Region 3: $\hat{Y}_i=10529.7851+330.6117x_i$
+
+Region 4: $\hat{Y}_i=8615.0527+440.3157x_i$
+
+#### b.
+
+Are the estimated regression functions similar for the four regions? Discuss.
+
+The estimated regression functions are not similar for the four regions. Region 1 has the greatest slope at $522.1588$ while Region 2 has the smallest slope at $238.6694$. Region 2 is closer to Region 3 while Region 1 is closer to Region 4. For intercepts, Region 2 is the least similar. Region 3 is close to Region 1. Region 1 is close to Region 4.
+
+#### c.
+
+Calculate MSE for each region. Is the variability around the fitted regression line approximately the same for the four regions? Discuss.
+
+```{r, echo=FALSE}
+regressmseplot = function(X,Y){
+  Xbar = mean(X)
+  Ybar = mean(Y)
+  
+  b1hat = (sum((X-Xbar)*(Y-Ybar)))/(sum((X-Xbar)^2))
+  b0hat = Ybar - b1hat*Xbar
+  
+  #MSE
+  n = length(X)
+  Yhat = b0hat + b1hat*X
+  SSE = sum((Y-Yhat)^2)
+  MSE = SSE/(n-2)
+  
+  #Plot
+  plot(X, Y, xlab="Per capita income", ylab="Percent bachelor's degree",pch=19)
+  abline(b0hat,b1hat,col="red")
+  
+  #Check results
+  #lm(Y~X) or summary(lm(Y~X))
+  
+  return(list("MSE"=MSE))
+}
+
+regressmseplot(X1,Y1)
+regressmseplot(X2,Y2)
+regressmseplot(X3,Y3)
+regressmseplot(X4,Y4)
+```
+
+MSE for each region:
+
+Region 1: $7335008$
+
+Region 2: $4411341$
+
+Region 3: $7474349$
+
+Region 4: $8214318$
+
+They are not the same. Region 4 has the greatest variability around the fitted regression line at $8214318$. It is followed closely by Region 3 at $7474349$ and Region 1 at $7335008$. Region 2 has the least variability around the fitted regression line at $4411341$.
+
+## Part II
+
+### 2.62
+
+Refer to the CDI data set in Appendix C.2 and Project l.43. Using $R^2$ as the criterion, which predictor variable accounts for the largest reduction in the variability in the number of active physicians?
+
+Model 1 $R^2$:
+```{r, echo=FALSE}
+f1 = anova(fit1)
+#f1
+
+ssr = 1243181164
+ssto = 1243181164+163025135 
+
+#NOTE: SSR and SSTO came from f1, which is currently hidden for ease of readability.
+
+r2 = ssr/ssto
+r2
+```
+
+Model 2 $R^2$:
+```{r, echo=FALSE}
+f2 = anova(fit2)
+#f2
+
+ssR = 1270342254
+sstO = 1270342254+135864045
+
+#NOTE: SSR and SSTO came from f2, which is currently hidden for ease of readability.
+
+R2 = ssR/sstO
+R2
+```
+
+Model 3 $R^2$:
+```{r, echo=FALSE}
+f3 = anova(fit3)
+#f3
+
+Ssr = 1264058045
+Ssto = 142148254+1264058045 
+
+#NOTE: SSR and SSTO came from f3, which is currently hidden for ease of readability.
+
+rr2 = Ssr/Ssto
+rr2
+```
+
+Because model 2 has the highest $R^2$ value, the number of hospital beds seems to be the best variable in reducing variability in the number of active physicians in a given county.  This confirms the conclusion reached in 1.43C.
+
+## Part III
+
+### 2.63
+
+Refer to the CDI data set in Appendix C.2 and Project l.44. Obtain a separate interval estimate of $\beta_1$ for each region. Use a 90 percent confidence coefficient in each case. Do the regression lines for the different regions appear to have similar slopes? 
+
+```{r, echo=FALSE}
+regressslopeest = function(X,Y,alpha){
+  Xbar = mean(X)
+  Ybar = mean(Y)
+  n = length(X)
+  
+  b1hat = (sum((X-Xbar)*(Y-Ybar)))/(sum((X-Xbar)^2))
+  b0hat = Ybar - b1hat*Xbar
+  
+  Yhat = b0hat + b1hat*X
+  
+  SSE = sum((Y-Yhat)^2)
+  MSE = SSE/(n-2)  
+  
+  seb1hat = sqrt(MSE/sum((X-Xbar)^2))
+  
+  t = qt(1-alpha/2, n-2)
+  
+  lb.b1hat = b1hat - t*seb1hat
+  ub.b1hat = b1hat + t*seb1hat
+  
+  ci.b1hat = c(lb.b1hat,ub.b1hat)
+  
+  return(list("LB,UB" =ci.b1hat))
+}
+
+regressslopeest(X1,Y1,0.1)
+regressslopeest(X2,Y2,0.1)
+regressslopeest(X3,Y3,0.1)
+regressslopeest(X4,Y4,0.1)
+
+#Graph
+regionslopestCI = as.data.frame(t(data.frame(regressslopeest(X1,Y1,0.1), regressslopeest(X2,Y2,0.1), regressslopeest(X3,Y3,0.1), regressslopeest(X4,Y4,0.1))))
+rownames(regionslopestCI) <- 1:4
+
+library(ggplot2)
+ggplot(regionslopestCI) + geom_errorbar(aes(x=row.names(regionslopestCI),ymin=regionslopestCI[,1],ymax=regionslopestCI[,2]), width=0.2) + xlab("Region") + ylab("CI") + labs(title = "Confidence Intervals for Slope by Region") + geom_hline(yintercept=0)
+```
+
+They do not appear to have similar slopes. Region 2 is least similar to all. However, Region 1 and 4 are most similar to each other and Region 3 and 4 are more similar to each other.
+
+Also carry out the analysis of variance (ANOVA) for each regression model and state the results of the F-tests. What do you conclude in each case?
+
+$H_0: \beta_1=0$
+
+$H_1: \beta_1\neq0$
+
+Decision rule: reject null hypothesis if $F*>F_{1-\alpha,1,n-2}$ where $F_{1-\alpha,1,n-2}$ is the $1-\alpha$ quantile of $F$ distribution with degrees of freedom $1$ and $n-2$ or if $p-value<\alpha$
+
+```{r, echo=FALSE}
+regressanova = function(X,Y,alpha){
+  Xbar = mean(X)
+  Ybar = mean(Y)
+  n = length(X)
+  
+  b1hat = (sum((X-Xbar)*(Y-Ybar)))/(sum((X-Xbar)^2))
+  b0hat = Ybar - b1hat*Xbar
+  
+  Yhat = b0hat + b1hat*X
+  
+  SSR = sum((Yhat-Ybar)^2)
+  MSR = SSR/1
+  SSE = sum((Y-Yhat)^2)
+  MSE = SSE/(n-2)
+  SSTO = SSR + SSE
+  
+  TestStatF = MSR/MSE
+  FStat = qf(1-alpha, 1, n-2)
+  pvalue = pf(TestStatF, 1, n-2, lower.tail=FALSE)
+
+  ANOVAtable = matrix(0,nrow=3,ncol=4)
+    ANOVAtable[1,1]=SSR
+    ANOVAtable[1,2]=1
+    ANOVAtable[1,3]=MSR
+    ANOVAtable[1,4]=TestStatF
+    ANOVAtable[2,1]=SSE
+    ANOVAtable[2,2]=n-2
+    ANOVAtable[2,3]=MSE
+    ANOVAtable[2,4]="-"
+    ANOVAtable[3,1]=SSTO
+    ANOVAtable[3,2]=n-1
+    ANOVAtable[3,3]="-"
+    ANOVAtable[3,4]="-"
+  ANOVAtable = as.data.frame(ANOVAtable)
+  rownames(ANOVAtable)=c("Regression","Error","Total")
+  colnames(ANOVAtable)=c("SS","df","MS","F")
+  
+  Ftest = as.data.frame(t(data.frame(c(TestStatF, FStat), c(pvalue, alpha))))
+  rownames(Ftest) <- c("F*,F", "pvalue,alpha")
+  
+  return(list("ANOVA Table" = ANOVAtable, "F test" = Ftest))
+  
+  #Check results
+  #anova(lm(Y~X))
+}
+
+regressanova(X1,Y1, 0.1)
+regressanova(X2,Y2, 0.1)
+regressanova(X3,Y3, 0.1)
+regressanova(X4,Y4, 0.1)
+```
+
+F test for each region:
+
+Region 1: Reject null, $1.977527x10^2>2.755868$ and $1.589101x10^{-25}<0.1$, we cannot say that $\beta_1=0$
+
+Region 2: Reject null, $7.682646x10^1>2.753462$ and $3.344138x10^{-14}<0.1$, we cannot say that $\beta_1=0$
+
+Region 3: Reject null, $1.484910x10^2>2.739275$ and $3.539586x10^{-24}<0.1$, we cannot say that $\beta_1=0$
+
+Region 4: Reject null, $9.419477x10^1>2.773642$ and $6.855606x10^{-15}<0.1$, we cannot say that $\beta_1=0$
+
+All regions have some amount of linear association. The regression model is accurate.
+
+## Part IV
+
+### 3.25
+
+Refer to the CDI data set in Appendix C.2 and Project 1.43. For each of the three fitted regression models, obtain the residuals and prepare a residual plot against X and a normal probability plot. Summarize your conclusions. Is linear regression model (2.1) more appropriate in one case than in the others?
+
+Model 1 residual plot:
+
+```{r, echo=FALSE}
+plot(data$V5,fit1$residuals, main = "Model 1 Residuals vs. Total Population of a CDI", xlab = "Total Population", ylab = "Residuals")
+abline(0,0)
+```
+
+From the above graph, there appears to be no discernible pattern, and the data seem to be roughly even around the zero line.  Therefore, the constant error variance assumption holds for model 1.
+
+
+Model 1 normal probability plot:
+
+```{r, echo=FALSE}
+qqnorm(fit1$residuals, main = "Normal Probability Plot for Model 1", xlab = "Expected Value of Residual", ylab = "Residual")
+qqline(fit1$residuals)
+#shapiro.test(fit1$residuals)
+```
+
+The above normal probability plot is symmetrical with heavy tails, indicating that the residuals are not normally distributed.
+
+
+Model 2 residual plot:
+
+```{r, echo=FALSE}
+plot(data$V9,fit2$residuals, main = "Model 2 Residuals vs. Number of Hospital Beds available in a CDI", xlab = "Number of Hospital Beds", ylab = "Residuals")
+abline(0,0)
+```
+
+From the above graph, there appears to be no discernible pattern, and the data seem to be roughly even around the zero line.  Therefore, the constant error variance assumption holds for model 2.
+
+
+Model 2 normal probability plot:
+
+```{r, echo=FALSE}
+qqnorm(fit2$residuals, main = "Normal Probability Plot for Model 2", xlab = "Expected Value of Residual", ylab = "Residual")
+qqline(fit2$residuals)
+#shapiro.test(fit2$residuals)
+```
+
+The above normal probability plot is symmetrical with heavy tails, indicating that the residuals are not normally distributed.   
+
+
+Model 3 residual plot:
+
+```{r, echo=FALSE}
+plot(data$V16,fit3$residuals, main = "Model 3 Residuals vs. Total Personal Income", xlab = "Total Personal Income", ylab = "Residuals")
+abline(0,0)
+```
+
+From the above graph, there appears to be no discernible pattern, and the data seem to be roughly even around the zero line.  Therefore, the constant error variance assumption holds for model 3.
+
+
+Model 3 normal probability plot:
+
+```{r, echo=FALSE}
+qqnorm(fit3$residuals, main = "Normal Probability Plot for Model 3", xlab = "Expected Value of Residual", ylab = "Residual")
+qqline(fit3$residuals)
+#shapiro.test(fit3$residuals)
+```
+
+The above normal probability plot is symmetrical with heavy tails, indicating that the residuals are not normally distributed.
+
+## Part V
+
+### Conclusion:
+
+#### First set of models
+
+The best predictor of the number of active physicians in a county was determined to be the number of hospital beds available in a county.  After models were constructed for all three predictor variables involved in the project, the data for each were plotted along with their respective linear models.  These plots can be seen in Part I question 1.43.  It is difficult to discern which model is the most accurate from the graphs alone.
+
+In the Part II of the report, calculations were carried out to determine numerically which model produced the highest degree of linear association between the predictor variable and the response.  This value is known as the coefficient of determination, or $R^2$ value.  A higher $R^2$ value means that a given predictor variable produces a more accurate prediction of the response in question.  The model that used the number of available hospital beds had the highest $R^2$ value, indicating that it is the best predictor of the number of active physicians in a county.
+
+To ensure that this finding was accurate, a series of plots were produced in Part IV to determine that all assumptions for a linear model were met.  By examining the plots, it is clear that the errors for each model exhibit constant variance, but the errors are not normally distributed.  As a result of not meeting the normality assumption, any inferences made on the slope or intercept will be inaccurate, since we cannot rely on the t-distribution.  This could be remedied by transforming the response data (number of active physicians).  An appropriate transformation could be determined by using the Box-Cox procedure, which finds an optimal transformation for the response variable that would most likely result in normally distributed errors.
+
+#### Second set of models 
+
+All regions showed a different regression function for the per capita income in a CDI against the percentage of individuals in a county having at least a bachelor's degree. The northeastern region showed the highest increase in percentage of individuals having at least a bachelor's decrease per capita income increase. The north central region showed the smallest increase per capita income increase.
+
+From constructing confidence intervals and assessing overlap in true slope range, the northeastern region and the western region's per capita income increase are most similar to each other. Whilst, the southern region and the western region per capita income increase are more similar to each other. The north central region is least similar to all. From the ANOVA and F-test, all regions showed a linear relationship between per capita income in a CDI and the percentage of individuals in a county having at least a bachelor's degree.
+
+## Code Appendix:
+```{r, ref.label=knitr::all_labels(),echo=TRUE,eval=FALSE}
+```
